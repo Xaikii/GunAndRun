@@ -1,20 +1,20 @@
 package net.perpetualeve.gunandrun;
 
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraftforge.eventbus.api.Event;
 
 public class GARForwardImpulseEvent extends Event {
 
 	float mult = 1.0f;
-	LocalPlayer player;
+	ClientPlayerEntity player;
 	
-	public GARForwardImpulseEvent(float mult,LocalPlayer player)
+	public GARForwardImpulseEvent(float mult, ClientPlayerEntity player)
 	{
 		this.mult = mult;
 		this.player = player;
 	}
 	
-	public LocalPlayer getPlayer() {
+	public ClientPlayerEntity getPlayer() {
 		return player;
 	}
 	

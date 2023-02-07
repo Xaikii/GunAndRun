@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.common.ForgeConfigSpec.DoubleValue;
@@ -16,8 +16,8 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.config.ModConfig.Type;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -54,7 +54,7 @@ public class GunAndRun {
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 	
-	public void onLoad(ModConfigEvent.Loading configEvent) {
+	public void onLoad(ModConfig.Loading configEvent) {
 		forward = defaultMultForward.get().floatValue();
 		left = defaultMultLeft.get().floatValue();
 		overrides.clear();
@@ -64,7 +64,7 @@ public class GunAndRun {
 		}
 	}
 
-	public void onFileChange(ModConfigEvent.Reloading configEvent) {
+	public void onFileChange(ModConfig.Reloading configEvent) {
 		forward = defaultMultForward.get().floatValue();
 		left = defaultMultLeft.get().floatValue();
 		overrides.clear();
@@ -76,7 +76,7 @@ public class GunAndRun {
 	
 	@SubscribeEvent
 	public void onForwardImpulse(GARForwardImpulseEvent event) {
-		LocalPlayer player = event.getPlayer();
+		ClientPlayerEntity player = event.getPlayer();
 		
 		Entries ent = overrides.get(player.getItemInHand(player.getUsedItemHand()).getItem());
 		if(ent != null) {
@@ -86,7 +86,7 @@ public class GunAndRun {
 	
 	@SubscribeEvent
 	public void onLeftImpulse(GARLeftImpulseEvent event) {
-		LocalPlayer player = event.getPlayer();
+		ClientPlayerEntity player = event.getPlayer();
 		
 		Entries ent = overrides.get(player.getItemInHand(player.getUsedItemHand()).getItem());
 		if(ent != null) {
