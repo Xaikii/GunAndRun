@@ -1,0 +1,14 @@
+{
+    "package": "net.perpetualeve.gunandrun.mixins",
+    "required": true,
+    "refmap": "gunandrun.refmap.json",
+    "minVersion": "0.8",
+    "compatibilityLevel": "JAVA_17",
+    "mixins": [
+        "GARLocalPlayerMixin"
+    ],
+    "client": [],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}
