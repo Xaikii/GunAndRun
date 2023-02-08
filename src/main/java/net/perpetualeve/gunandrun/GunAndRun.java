@@ -5,13 +5,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.Item;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.common.ForgeConfigSpec.DoubleValue;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -19,7 +25,9 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig.Type;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 @Mod(GunAndRun.MODID)
 public class GunAndRun {
@@ -52,29 +60,49 @@ public class GunAndRun {
 		bus.addListener(this::onLoad);
 		bus.addListener(this::onFileChange);
 		MinecraftForge.EVENT_BUS.register(this);
-	}
-	
-	public void onLoad(ModConfigEvent.Loading configEvent) {
-		forward = defaultMultForward.get().floatValue();
-		left = defaultMultLeft.get().floatValue();
-		overrides.clear();
-		for(String f:overridesCFG.get()) {
-			String[] parts = f.split(";");
-			overrides.put(ForgeRegistries.ITEMS.getValue(new ResourceLocation(parts[0])), new Entries(Float.parseFloat(parts[1]), Float.parseFloat(parts[2])));
-		}
-	}
-
-	public void onFileChange(ModConfigEvent.Reloading configEvent) {
-		forward = defaultMultForward.get().floatValue();
-		left = defaultMultLeft.get().floatValue();
-		overrides.clear();
-		for(String f:overridesCFG.get()) {
-			String[] parts = f.split(";");
-			overrides.put(ForgeRegistries.ITEMS.getValue(new ResourceLocation(parts[0])), new Entries(Float.parseFloat(parts[1]), Float.parseFloat(parts[2])));
-		}
+		GARPacketManager.MANAGER.init();
 	}
 	
 	@SubscribeEvent
+	public void playerJoin(PlayerLoggedInEvent event) {
+		GARPacketManager.MANAGER.sendToPlayer(new GARConfigSyncPacket(forward, left, overrides), event.getEntity());
+	}
+	
+	public void onLoad(ModConfigEvent.Loading configEvent) {
+		reloadConfig();
+	}
+
+	public void onFileChange(ModConfigEvent.Reloading configEvent) {
+		reloadConfig();
+	}
+	
+	public void reloadConfig() {
+		if(!isAllowedToLoad()) return; 
+		forward = defaultMultForward.get().floatValue();
+		left = defaultMultLeft.get().floatValue();
+		overrides.clear();
+		for(String f:overridesCFG.get()) {
+			String[] parts = f.split(";");
+			overrides.put(ForgeRegistries.ITEMS.getValue(new ResourceLocation(parts[0])), new Entries(Float.parseFloat(parts[1]), Float.parseFloat(parts[2])));
+		}
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server == null) return;
+		GARPacketManager.MANAGER.sendToAllPlayers(new GARConfigSyncPacket(forward, left, overrides));
+	}
+	
+	public boolean isAllowedToLoad() {
+		if(FMLEnvironment.dist.isDedicatedServer()) {
+			return true;
+		}
+		Minecraft mc = Minecraft.getInstance();
+		if(mc.player == null) {
+			return true;
+		}
+		return mc.isLocalServer();
+	}
+	
+	@SubscribeEvent
+	@OnlyIn(Dist.CLIENT)
 	public void onForwardImpulse(GARForwardImpulseEvent event) {
 		LocalPlayer player = event.getPlayer();
 		
@@ -85,6 +113,7 @@ public class GunAndRun {
 	}
 	
 	@SubscribeEvent
+	@OnlyIn(Dist.CLIENT)
 	public void onLeftImpulse(GARLeftImpulseEvent event) {
 		LocalPlayer player = event.getPlayer();
 		
@@ -95,7 +124,7 @@ public class GunAndRun {
 	}
 	
 	
-	private class Entries {
+	public static class Entries {
 		
 		float forward;
 		float side;
@@ -103,6 +132,10 @@ public class GunAndRun {
 		Entries(float forward, float side) {
 			this.forward = forward;
 			this.side = side;
+		}
+		public Entries(FriendlyByteBuf buf) {
+			this.forward = buf.readFloat();
+			this.side = buf.readFloat();
 		}
 
 		public float getForward() {
@@ -113,6 +146,10 @@ public class GunAndRun {
 			return side;
 		}
 		
+		public void write(FriendlyByteBuf buf) {
+			buf.writeFloat(forward);
+			buf.writeFloat(side);
+		}
 	}
 	
 }
