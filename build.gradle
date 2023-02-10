@@ -14,7 +14,7 @@ apply plugin: "org.spongepowered.mixin"
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.19-1.1.1'
+version = '1.18-1.1.1'
 group = 'net.perpetualeve.gunandrun' 
 archivesBaseName = 'gunandrun'
 
@@ -27,9 +27,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.2-43.2.0'
-    implementation fg.deobf("curse.maven:configured-457570:4011355")
-	implementation fg.deobf("curse.maven:jei-238222:4087658")
+    minecraft 'net.minecraftforge:forge:1.18.2-40.2.1'
     
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
@@ -54,7 +52,7 @@ minecraft {
     //
     // Use non-default mappings at your own risk. They may not always work.
     // Simply re-run your setup task after changing the mappings to update your workspace.
-    mappings channel: 'official', version: '1.19.2'
+    mappings channel: 'official', version: '1.18.2'
 
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
 

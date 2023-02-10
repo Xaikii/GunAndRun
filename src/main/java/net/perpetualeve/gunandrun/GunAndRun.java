@@ -65,7 +65,7 @@ public class GunAndRun {
 	
 	@SubscribeEvent
 	public void playerJoin(PlayerLoggedInEvent event) {
-		GARPacketManager.MANAGER.sendToPlayer(new GARConfigSyncPacket(forward, left, overrides), event.getEntity());
+		GARPacketManager.MANAGER.sendToPlayer(new GARConfigSyncPacket(forward, left, overrides), event.getPlayer());
 	}
 	
 	public void onLoad(ModConfigEvent.Loading configEvent) {
