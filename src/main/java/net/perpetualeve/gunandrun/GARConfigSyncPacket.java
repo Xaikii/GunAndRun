@@ -50,7 +50,6 @@ public class GARConfigSyncPacket implements GARPacket {
 
 	@Override
 	public void handlePacket(PlayerEntity player) {
-		System.out.println("owo");
 		GunAndRun.forward = forward;
 		GunAndRun.left = side;
 		GunAndRun.overrides = overrides;
