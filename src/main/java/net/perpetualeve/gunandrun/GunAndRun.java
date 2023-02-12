@@ -64,6 +64,7 @@ public class GunAndRun {
 	}
 	
 	@SubscribeEvent
+	@OnlyIn(Dist.DEDICATED_SERVER)
 	public void playerJoin(PlayerLoggedInEvent event) {
 		GARPacketManager.MANAGER.sendToPlayer(new GARConfigSyncPacket(forward, left, overrides), event.getPlayer());
 	}
