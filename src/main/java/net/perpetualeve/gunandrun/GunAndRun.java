@@ -11,6 +11,8 @@ import net.minecraft.item.Item;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.common.ForgeConfigSpec.DoubleValue;
@@ -58,9 +60,11 @@ public class GunAndRun {
 		bus.addListener(this::onLoad);
 		bus.addListener(this::onFileChange);
 		MinecraftForge.EVENT_BUS.register(this);
+		GARPacketManager.MANAGER.init();
 	}
 	
 	@SubscribeEvent
+	@OnlyIn(Dist.DEDICATED_SERVER)
 	public void playerJoin(PlayerLoggedInEvent event) {
 		GARPacketManager.MANAGER.sendToPlayer(new GARConfigSyncPacket(forward, left, overrides), event.getPlayer());
 	}
@@ -99,6 +103,7 @@ public class GunAndRun {
 	}
 	
 	@SubscribeEvent
+	@OnlyIn(Dist.CLIENT)
 	public void onForwardImpulse(GARForwardImpulseEvent event) {
 		ClientPlayerEntity player = event.getPlayer();
 		
@@ -109,6 +114,7 @@ public class GunAndRun {
 	}
 	
 	@SubscribeEvent
+	@OnlyIn(Dist.CLIENT)
 	public void onLeftImpulse(GARLeftImpulseEvent event) {
 		ClientPlayerEntity player = event.getPlayer();
 		
